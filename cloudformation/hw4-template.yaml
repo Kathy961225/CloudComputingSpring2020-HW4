@@ -82,7 +82,7 @@ Resources:
   MyNotebookInstance:
     Type: "AWS::SageMaker::NotebookInstance"
     Properties:
-      AdditionalCodeRepositories: ""
+      AdditionalCodeRepositories: "https://github.com/Megathrone/CloudComputingSpring2020-HW4/tree/master/notebook"
       InstanceType: "ml.t2.large"
       RoleArn: !GetAtt ExecutionRole.Arn
   ExecutionRole: 
