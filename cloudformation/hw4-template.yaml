@@ -1,0 +1,111 @@
+AWSTemplateFormatVersion: 2010-09-09
+Metadata:
+  'AWS::CloudFormation::Designer':
+    c75f97e4-a70d-46f3-8dd3-db3e85a4af9f:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 349
+        'y': 68
+      z: 0
+      embeds: []
+    893e0da7-4120-407d-9cfc-bb785117cbe4:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 470
+        'y': 70
+      z: 0
+      embeds: []
+    e9cbce10-7096-4eb2-a1ee-c8cc471cab37:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 390
+        'y': 170
+      z: 0
+    72df5c5b-120b-4b6c-b15f-bdbc74b1d672:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 202
+        'y': 76
+      z: 0
+    53dd5c32-b39f-43d9-a2a2-36c25317a227:
+      size:
+        width: 60
+        height: 60
+      position:
+        x: 246
+        'y': 166
+      z: 0
+Resources:
+  B1:
+    Type: 'AWS::S3::Bucket'
+    Properties:
+      AccessControl: PublicRead
+      WebsiteConfiguration:
+        IndexDocument: index.html
+        ErrorDocument: error.html
+    DeletionPolicy: Retain
+  ReceiptRuleSet:
+    Type: AWS::SES::ReceiptRuleSet
+    Properties:
+        RuleSetName: RuleSet
+  SESReceiptRule1:
+    Type: AWS::SES::ReceiptRule
+    Properties:
+      RuleSetName: RuleSet
+      Rule:
+        Name: Inbound
+        Enabled: true
+        Actions:
+          - LambdaAction:
+              FunctionArn: !GetAtt LF1.Arn
+              InvocationType: Event
+          - S3Action:
+              BucketName: nyu-cc-final
+  LF1:
+    Type: AWS::Lambda::Function
+    Properties:
+      Code:
+        S3Bucket: nyu-cc-final
+        S3Key: LF1.zip
+      FunctionName: LF1_release
+      Handler: spam_handler.lambda_handler
+      Role: arn:aws:iam::389970203452:role/service-role/test-model-role-k1fi3nc6
+      Runtime: python3.6
+  MyNotebookInstance:
+    Type: "AWS::SageMaker::NotebookInstance"
+    Properties:
+      AdditionalCodeRepositories: ""
+      InstanceType: "ml.t2.large"
+      RoleArn: !GetAtt ExecutionRole.Arn
+  ExecutionRole: 
+    Type: "AWS::IAM::Role"
+    Properties: 
+      AssumeRolePolicyDocument: 
+        Version: "2012-10-17"
+        Statement: 
+          - 
+            Effect: "Allow"
+            Principal: 
+              Service: 
+                - "sagemaker.amazonaws.com"
+            Action: 
+              - "sts:AssumeRole"
+      Path: "/"
+      Policies: 
+        - 
+          PolicyName: "root"
+          PolicyDocument: 
+            Version: "2012-10-17"
+            Statement: 
+              - 
+                Effect: "Allow"
+                Action: "*"
+                Resource: "*"
